@@ -34,7 +34,7 @@
           serviceConfig = {
             User = "tailscaleap";
             Group = "tailscaleap";
-            DynamicUsers = true;
+            DynamicUser = true;
             Restart = "always";
             ExecStart = "${self.packages."${system}".default}/bin/cmd";
           };
