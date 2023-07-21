@@ -11,25 +11,30 @@
     stdenv = nixPkgsFor.stdenv;
   in {
 
-    packages = forAllSystems (system:
-      let
-        pkgs = nixPkgsFor.${system};
-        stdenv = pkgs.stdenv;
-      in {
-      tailscale-auth-proxy = pkgs.buildGoModule {
+    #packages = forAllSystems (system:
+    #  let
+    #    pkgs = nixPkgsFor.${system};
+    #    stdenv = pkgs.stdenv;
+    #  in {
+    #  tailscale-auth-proxy = pkgs.buildGoModule {
+    #    src = ./.;
+    #    name = "tailscale-auth-proxy";
+    #    vendorHash = "sha256-1hhztYJcTduwkm99cElsA9tp7hra8Tf8bQzPlh9zSvA";
+    #  };
+    #  default = self.packages.${system}.tailscale-auth-proxy;
+    #});
+    packages.x86_64.default = pkgs.buildGoModule {
         src = ./.;
         name = "tailscale-auth-proxy";
         vendorHash = "sha256-1hhztYJcTduwkm99cElsA9tp7hra8Tf8bQzPlh9zSvA";
-      };
-      default = self.packages.${system}.tailscale-auth-proxy;
-    });
+    };
     apps = forAllSystems (system: {
       default = {
         type = "app";
         program = "${self.packages.${system}.default}/bin/cmd";
       };
     });
-    nixosModules.tailscaleAuthProxy = { config, lib, system, ...}: {
+    nixosModules.tailscaleAuthProxy = { config, lib, ...}: {
       options.services.tailscaleAuthProxy = with lib; {
         enable = lib.mkEnableOption "enable tailscale auth proxy";
         upstream = lib.mkOption {
@@ -49,7 +54,7 @@
             Group = "tailscaleap";
             DynamicUsers = true;
             Restart = "always";
-            ExecStart = "${self.packages."${system}".default}/bin/cmd";
+            ExecStart = "${self.packages."${nixpkgs.system}".default}/bin/cmd";
           };
         };
       };
