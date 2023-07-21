@@ -54,7 +54,7 @@
             Group = "tailscaleap";
             DynamicUsers = true;
             Restart = "always";
-            ExecStart = "${self.packages."${nixpkgs.system}".default}/bin/cmd";
+            ExecStart = "${self.packages.default}/bin/cmd";
           };
         };
       };
