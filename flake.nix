@@ -1,39 +1,21 @@
 {
   description = "A very basic flake";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, nixpkgs} : let
-    # Nixpkgs instantiated for supported system types.
-    nixPkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
-    # System types to support.
-    supportedSystems =
-      [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
-    forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-    stdenv = nixPkgsFor.stdenv;
+  outputs = { self, nixpkgs, flake-utils } :
+  flake-utils.lib.eachDefaultSystem (system: 
+  let
+    pkgs = nixpkgs.legacyPackages.${system};
   in {
-
-    #packages = forAllSystems (system:
-    #  let
-    #    pkgs = nixPkgsFor.${system};
-    #    stdenv = pkgs.stdenv;
-    #  in {
-    #  tailscale-auth-proxy = pkgs.buildGoModule {
-    #    src = ./.;
-    #    name = "tailscale-auth-proxy";
-    #    vendorHash = "sha256-1hhztYJcTduwkm99cElsA9tp7hra8Tf8bQzPlh9zSvA";
-    #  };
-    #  default = self.packages.${system}.tailscale-auth-proxy;
-    #});
-    packages.x86_64.default = nixpkgs.buildGoModule {
+    packages.default = pkgs.buildGoModule {
         src = ./.;
         name = "tailscale-auth-proxy";
         vendorHash = "sha256-1hhztYJcTduwkm99cElsA9tp7hra8Tf8bQzPlh9zSvA";
     };
-    apps = forAllSystems (system: {
-      default = {
+    apps.default = {
         type = "app";
         program = "${self.packages.${system}.default}/bin/cmd";
-      };
-    });
+    };
     nixosModules.tailscaleAuthProxy = { config, lib, ...}: {
       options.services.tailscaleAuthProxy = with lib; {
         enable = lib.mkEnableOption "enable tailscale auth proxy";
@@ -54,10 +36,10 @@
             Group = "tailscaleap";
             DynamicUsers = true;
             Restart = "always";
-            ExecStart = "${self.packages.default}/bin/cmd";
+            ExecStart = "${self.packages."${system}".default}/bin/cmd";
           };
         };
       };
     };
-  };
+  });
 }
