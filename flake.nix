@@ -23,7 +23,7 @@
     #  };
     #  default = self.packages.${system}.tailscale-auth-proxy;
     #});
-    packages.x86_64.default = pkgs.buildGoModule {
+    packages.x86_64.default = nixpkgs.buildGoModule {
         src = ./.;
         name = "tailscale-auth-proxy";
         vendorHash = "sha256-1hhztYJcTduwkm99cElsA9tp7hra8Tf8bQzPlh9zSvA";
