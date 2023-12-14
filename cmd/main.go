@@ -43,11 +43,16 @@ func main() {
 		} else {
 			remote = req.RemoteAddr
 		}
+		// Delete these first in case someone tries to insert them?
+		req.Header.Del("X-Webauth-Name")
+		req.Header.Del("X-Webauth-User")
+		req.Header.Del("X-Webauth-Profile-Pic")
 		log.Printf("%s %s %s", remote, req.Method, req.URL.Path)
 		if whois, err := client.WhoIs(ctx, remote); err == nil {
 			log.Printf("tailscale user: %s", whois.UserProfile)
 			req.Header.Set("X-Webauth-Name", whois.UserProfile.DisplayName)
 			req.Header.Set("X-Webauth-User", whois.UserProfile.LoginName)
+			req.Header.Set("X-Webauth-Profile-Pic", whois.UserProfile.ProfilePicURL)
 		} else {
 			log.Printf("unable to get tailscale id for: >%s<", remote)
 			log.Print(err)
