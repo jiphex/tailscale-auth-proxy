@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -43,12 +44,16 @@ func main() {
 		} else {
 			remote = req.RemoteAddr
 		}
+		asaddr,err := net.ResolveTCPAddr("tcp", remote)
+		if err != nil {
+			log.Fatal(err)
+		}
 		// Delete these first in case someone tries to insert them?
 		req.Header.Del("X-Webauth-Name")
 		req.Header.Del("X-Webauth-User")
 		req.Header.Del("X-Webauth-Profile-Pic")
 		log.Printf("%s %s %s", remote, req.Method, req.URL.Path)
-		if whois, err := client.WhoIs(ctx, remote); err == nil {
+		if whois, err := client.WhoIs(ctx, asaddr.String()); err == nil {
 			log.Printf("tailscale user: %s", whois.UserProfile)
 			req.Header.Set("X-Webauth-Name", whois.UserProfile.DisplayName)
 			req.Header.Set("X-Webauth-User", whois.UserProfile.LoginName)
