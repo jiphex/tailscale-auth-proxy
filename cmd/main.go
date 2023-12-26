@@ -37,10 +37,16 @@ func main() {
 			xff0,_,_ := strings.Cut(xff, ",");
 			// trip a v6v4 prefix if there is one
 			xff0 = strings.TrimPrefix(xff0, "::ffff:")
-			// get the host/port
-			remoteHost, remotePort, err := net.SplitHostPort(strings.TrimSpace(xff0))
-			if err != nil {
-				log.Fatalf("unable to split host port: %s", xff0)
+			var remoteHost, remotePort string
+			if strings.Contains(xff0, ":") {
+				// get the host/port
+				remoteHost, remotePort, err = net.SplitHostPort(strings.TrimSpace(xff0))
+				if err != nil {
+					log.Fatalf("unable to split host port: %s (%s)", xff0, err)
+				}
+			} else {
+				remoteHost = xff0
+				remotePort = "36969"
 			}
 			// stick it back together again, including the [] characters
 			remote = net.JoinHostPort(remoteHost, remotePort)
