@@ -34,13 +34,17 @@ func main() {
 	proxy.Director = func(req *http.Request) {
 		var remote string
 		if xff := req.Header.Get("X-Forwarded-For"); xff != "" {
-			_, remotePort, found := strings.Cut(req.RemoteAddr, ":")
-			if !found {
+			// if the xff header contains a comma, split it there and pick the first bit
+			xff0,_,_ := strings.Cut(xff, ",");
+			// get the host/port
+			remoteHost, remotePort, err := net.SplitHostPort(strings.TrimSpace(xff0))
+			if err != nil {
 				log.Fatalf("bad remote address?!")
 			}
-			remote = strings.SplitN(xff, " ", 2)[0]
-			remote = strings.TrimPrefix(remote, "::ffff:")
-			remote = fmt.Sprintf("%s:%s", remote, remotePort)
+			// trip a v6v4 prefix if there is one
+			remote = strings.TrimPrefix(remoteHost, "::ffff:")
+			// stick it back together again, including the [] characters
+			remote = net.JoinHostPort(remote, remotePort)
 		} else {
 			remote = req.RemoteAddr
 		}
