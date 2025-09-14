@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"strings"
 
-	"tailscale.com/client/tailscale"
+	"tailscale.com/client/local"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 	proxyTo := flag.String("upstream", "http://localhost:3000", "Upstream address to proxy traffic to")
 	flag.Parse()
 	ctx := context.Background()
-	client := &tailscale.LocalClient{}
+	client := &local.Client{}
 	status, err := client.Status(ctx)
 	if err != nil {
 		log.Fatalf("unable to get tailscale status")
@@ -34,7 +34,7 @@ func main() {
 		var remote string
 		if xff := req.Header.Get("X-Forwarded-For"); xff != "" {
 			// if the xff header contains a comma, split it there and pick the first bit
-			xff0,_,_ := strings.Cut(xff, ",");
+			xff0, _, _ := strings.Cut(xff, ",")
 			// trip a v6v4 prefix if there is one
 			xff0 = strings.TrimPrefix(xff0, "::ffff:")
 			// // get the host/port
