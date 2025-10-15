@@ -1,8 +1,8 @@
 module github.com/jiphex/ts-id
 
-go 1.23
+go 1.25
 
-require tailscale.com v1.75.0-pre
+require tailscale.com v1.88.4
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -11,7 +11,7 @@ require (
 	github.com/coder/websocket v1.8.14 // indirect
 	github.com/dblohm7/wingoes v0.0.0-20250822163801-6d8e6105c62d // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
-	github.com/go-json-experiment/json v0.0.0-20250103232110-6a9a0fde9288 // indirect
+	github.com/go-json-experiment/json v0.0.0-20250813024750-ebf49471dced // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/hdevalence/ed25519consensus v0.2.0 // indirect
 	github.com/jsimonetti/rtnetlink v1.4.2 // indirect
